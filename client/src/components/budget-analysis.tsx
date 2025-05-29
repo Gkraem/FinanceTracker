@@ -220,7 +220,7 @@ export default function BudgetAnalysis() {
             <h4 className="font-medium text-card-foreground">Spending Breakdown</h4>
             
             <div className="space-y-3">
-              {categoryAnalysis.slice(0, 6).map((category) => (
+              {categoryAnalysis.map((category) => (
                 <div key={category.category}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-muted-foreground">{category.category}</span>
