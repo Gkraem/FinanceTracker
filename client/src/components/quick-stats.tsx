@@ -46,13 +46,16 @@ export default function QuickStats() {
   const expenses = expensesData?.expenses || [];
   const assets = assetsData?.assets;
 
-  // Calculate net monthly income (same calculation as income estimator)
+  // Calculate net monthly income (exact same calculation as income estimator)
   const monthlyIncome = income ? (() => {
-    const grossAnnual = parseFloat(income.annualSalary);
-    const taxCalc = calculateTax(grossAnnual, income.state);
-    const contribution401k = parseFloat(income.contribution401k || "0");
-    const contribution401kAmount = grossAnnual * (contribution401k / 100);
-    const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - contribution401kAmount;
+    const salary = parseFloat(income.annualSalary || "0");
+    const contribution401kPercent = parseFloat(income.contribution401k || "0");
+    const sideHustle = parseFloat(income.sideHustleIncome || "0");
+    const grossAnnual = salary + sideHustle;
+    const contribution401k = (salary * contribution401kPercent) / 100;
+    const taxableIncome = grossAnnual - contribution401k;
+    const taxes = calculateTax(taxableIncome, income.state);
+    const netAnnual = taxableIncome - taxes.federal - taxes.state - taxes.fica;
     return netAnnual / 12;
   })() : 0;
   const monthlyExpenses = expenses.reduce((total, expense) => {
