@@ -436,6 +436,57 @@ export default function RetirementEstimator() {
             </div>
           </div>
         </div>
+
+        {/* Calculation Breakdown */}
+        <div className="space-y-3">
+          <h4 className="font-medium text-card-foreground">Calculation Breakdown</h4>
+          
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Starting Salary</span>
+              <span className="font-medium text-card-foreground">
+                {formatCurrency(grossAnnual)}
+              </span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">401k Contribution</span>
+              <span className="font-medium text-card-foreground">
+                {contribution401kPercent}%
+              </span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Company Match</span>
+              <span className="font-medium text-card-foreground">
+                {companyMatchPercent}%
+              </span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Annual Raise</span>
+              <span className="font-medium text-card-foreground">
+                {promotionPercentage}%
+              </span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Expected Return</span>
+              <span className="font-medium text-card-foreground">
+                {(expectedReturn * 100).toFixed(1)}%
+              </span>
+            </div>
+            
+            <div className="pt-2 border-t border-border">
+              <div className="flex justify-between font-medium">
+                <span className="text-muted-foreground">Total at Retirement</span>
+                <span className="text-card-foreground">
+                  {formatCurrency(retirementCalc.projectedSavings)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         {/* Assumptions */}
         <div className="text-xs text-muted-foreground space-y-1 border-t border-border pt-4">
