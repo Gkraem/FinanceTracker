@@ -185,6 +185,7 @@ export default function RetirementEstimator() {
     currentCash,
     carValue,
     homeValue,
+    otherAssets,
     contribution401kPercent,
     companyMatchPercent,
     promotionPercentage,

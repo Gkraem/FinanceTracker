@@ -55,6 +55,7 @@ export function calculateRetirement(
   currentCash: number,
   vehicleValue: number,
   homeValue: number,
+  otherAssets: number,
   contribution401kPercent: number,
   companyMatchPercent: number,
   promotionPercentage: number,
@@ -88,14 +89,14 @@ export function calculateRetirement(
   calculationSteps.push(`Real Growth Rate: ${(realGrowthRate * 100).toFixed(2)}%`);
   calculationSteps.push('');
   
-  // Initial cash includes current cash + vehicle + home + accumulated monthly savings
-  const initialCashTotal = currentCash + vehicleValue + homeValue;
+  // Initial cash includes current cash + vehicle + home + other assets + accumulated monthly savings
+  const initialCashTotal = currentCash + vehicleValue + homeValue + otherAssets;
   
   calculationSteps.push(`📊 Current Balances:`);
   calculationSteps.push(`401k Balance: ${formatCurrency(current401k)}`);
   calculationSteps.push(`Roth IRA Balance: ${formatCurrency(currentRothIRA)}`);
   calculationSteps.push(`Personal Investments: ${formatCurrency(personalInvestments)}`);
-  calculationSteps.push(`Cash (current + vehicle + home): ${formatCurrency(initialCashTotal)}`);
+  calculationSteps.push(`Cash (current + vehicle + home + other): ${formatCurrency(initialCashTotal)}`);
   calculationSteps.push('');
   
   // Track each account separately
