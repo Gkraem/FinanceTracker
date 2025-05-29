@@ -145,7 +145,7 @@ export default function ExpenseManager() {
 
   const updateExpenseMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Omit<InsertExpense, "userId"> }) => {
-      await apiRequest("PATCH", `/api/expenses/${id}`, data);
+      await apiRequest("PUT", `/api/expenses/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
@@ -177,6 +177,10 @@ export default function ExpenseManager() {
 
   const handleEditExpense = (expense: Expense) => {
     setEditingExpense(expense);
+    setValue("category", expense.category);
+    setValue("description", expense.description);
+    setValue("amount", expense.amount);
+    setValue("frequency", expense.frequency);
     setIsEditDialogOpen(true);
   };
 
@@ -315,6 +319,112 @@ export default function ExpenseManager() {
                     type="button"
                     variant="outline"
                     onClick={() => setIsAddDialogOpen(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Expense Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Edit Expense</DialogTitle>
+                <DialogDescription>
+                  Update your expense details below.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit(onEditSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-category">Category</Label>
+                    <Select
+                      value={watch("category")}
+                      onValueChange={(value) => setValue("category", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EXPENSE_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-frequency">Frequency</Label>
+                    <Select
+                      value={watch("frequency")}
+                      onValueChange={(value) => setValue("frequency", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FREQUENCIES.map((freq) => (
+                          <SelectItem key={freq.value} value={freq.value}>
+                            {freq.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Input
+                    id="edit-description"
+                    placeholder="e.g., Monthly rent payment"
+                    {...register("description")}
+                  />
+                  {errors.description && (
+                    <p className="text-sm text-destructive">{errors.description.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-amount">Amount ($)</Label>
+                  <Input
+                    id="edit-amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    {...register("amount")}
+                  />
+                  {errors.amount && (
+                    <p className="text-sm text-destructive">{errors.amount.message}</p>
+                  )}
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <Button
+                    type="submit"
+                    disabled={updateExpenseMutation.isPending}
+                    className="flex-1"
+                  >
+                    {updateExpenseMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      "Update Expense"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditDialogOpen(false)}
                     className="flex-1"
                   >
                     Cancel
