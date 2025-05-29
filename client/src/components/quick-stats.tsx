@@ -22,7 +22,11 @@ export default function QuickStats() {
     queryKey: ["/api/expenses"],
   });
 
-  if (incomeLoading || expensesLoading) {
+  const { data: assetsData, isLoading: assetsLoading } = useQuery<{assets: any}>({
+    queryKey: ["/api/assets"],
+  });
+
+  if (incomeLoading || expensesLoading || assetsLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up">
         {[...Array(4)].map((_, i) => (
@@ -40,13 +44,15 @@ export default function QuickStats() {
 
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
+  const assets = assetsData?.assets;
 
-  // Calculate net monthly income (after taxes and 401k)
+  // Calculate net monthly income (same calculation as income estimator)
   const monthlyIncome = income ? (() => {
     const grossAnnual = parseFloat(income.annualSalary);
     const taxCalc = calculateTax(grossAnnual, income.state);
     const contribution401k = parseFloat(income.contribution401k || "0");
-    const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - (grossAnnual * contribution401k / 100);
+    const contribution401kAmount = grossAnnual * (contribution401k / 100);
+    const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - contribution401kAmount;
     return netAnnual / 12;
   })() : 0;
   const monthlyExpenses = expenses.reduce((total, expense) => {
@@ -68,8 +74,16 @@ export default function QuickStats() {
   const cashFlow = calculateMonthlyCashFlow(income, expenses);
   const savingsRate = monthlyIncome > 0 ? (cashFlow.amount / monthlyIncome) * 100 : 0;
 
-  // Mock net worth calculation (would be calculated from assets/investments in real app)
-  const netWorth = 185000 + (cashFlow.amount * 12);
+  // Calculate actual net worth from asset tracker data
+  const netWorth = assets ? 
+    parseFloat(assets.currentCash || "0") +
+    parseFloat(assets.current401k || "0") +
+    parseFloat(assets.currentRothIRA || "0") +
+    parseFloat(assets.homeValue || "0") +
+    parseFloat(assets.carValue || "0") +
+    parseFloat(assets.personalInvestments || "0") +
+    parseFloat(assets.otherAssets || "0")
+    : 0;
 
   const stats = [
     {

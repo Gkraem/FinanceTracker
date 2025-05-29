@@ -143,7 +143,8 @@ export function calculateMonthlyCashFlow(
   const contribution401k = parseFloat(income.contribution401k || "0");
   
   // Calculate net monthly income (after taxes and 401k)
-  const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - (grossAnnual * contribution401k / 100);
+  const contribution401kAmount = grossAnnual * (contribution401k / 100);
+  const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - contribution401kAmount;
   const netMonthly = netAnnual / 12;
   
   const monthlyExpenses = Array.isArray(expenses) ? expenses.reduce((sum, expense) => 
