@@ -65,7 +65,7 @@ export default function QuickStats() {
     }
   }, 0);
 
-  const cashFlow = calculateMonthlyCashFlow(monthlyIncome, monthlyExpenses);
+  const cashFlow = calculateMonthlyCashFlow(income, expenses);
   const savingsRate = monthlyIncome > 0 ? (cashFlow.amount / monthlyIncome) * 100 : 0;
 
   // Mock net worth calculation (would be calculated from assets/investments in real app)
