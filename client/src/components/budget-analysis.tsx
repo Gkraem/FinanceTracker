@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Lightbulb, PieChart, TrendingUp, TrendingDown } from "lucide-react";
-import { formatCurrency, calculateMonthlyCashFlow } from "@/lib/utils";
+import { formatCurrency, calculateMonthlyCashFlow, calculateTax } from "@/lib/utils";
 import type { IncomeData, Expense } from "@shared/schema";
 
 interface IncomeResponse {
@@ -30,6 +30,7 @@ const CATEGORY_BUDGETS: Record<string, number> = {
   "Utilities": 0.06, // 6% of income
   "Insurance": 0.10, // 10% of income
   "Student Debt": 0.10, // 10% of income
+  "Shopping": 0.06, // 6% of income
 };
 
 export default function BudgetAnalysis() {
@@ -70,7 +71,12 @@ export default function BudgetAnalysis() {
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
 
-  const monthlyIncome = income ? parseFloat(income.annualSalary) / 12 : 0;
+  // Calculate net monthly income (after taxes and 401k)
+  const grossAnnual = income ? parseFloat(income.annualSalary) : 0;
+  const grossMonthly = grossAnnual / 12;
+  const taxes = income ? calculateTax(grossAnnual, income.state) : { federal: 0, state: 0, fica: 0 };
+  const contribution401k = income?.contribution401k ? parseFloat(income.contribution401k) / 12 : 0;
+  const netMonthlyIncome = grossMonthly - (taxes.federal / 12) - (taxes.state / 12) - (taxes.fica / 12) - contribution401k;
   const monthlyExpenses = expenses.reduce((total, expense) => {
     const amount = parseFloat(expense.amount);
     switch (expense.frequency) {
@@ -87,7 +93,7 @@ export default function BudgetAnalysis() {
     }
   }, 0);
 
-  const cashFlow = calculateMonthlyCashFlow(monthlyIncome, monthlyExpenses);
+  const cashFlow = netMonthlyIncome - monthlyExpenses;
 
   // Group expenses by category
   const categoryTotals: Record<string, number> = {};
@@ -113,7 +119,7 @@ export default function BudgetAnalysis() {
   // Calculate category spending analysis
   const categoryAnalysis: CategorySpending[] = Object.entries(categoryTotals).map(([category, amount]) => {
     const budgetPercentage = CATEGORY_BUDGETS[category] || 0.05;
-    const budget = monthlyIncome * budgetPercentage;
+    const budget = netMonthlyIncome * budgetPercentage;
     const percentage = budget > 0 ? (amount / budget) * 100 : 0;
     
     let status: "good" | "warning" | "over" = "good";
