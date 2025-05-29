@@ -165,13 +165,13 @@ export default function BudgetAnalysis() {
   };
 
   const recommendations = [
-    cashFlow.status === "positive" && cashFlow.amount > 1000
-      ? `You could save an additional ${formatCurrency(cashFlow.amount * 0.5)}/month`
+    cashFlow > 1000
+      ? `You could save an additional ${formatCurrency(cashFlow * 0.5)}/month`
       : null,
     categoryAnalysis.find(c => c.status === "over")
       ? `Consider reducing spending in ${categoryAnalysis.find(c => c.status === "over")?.category}`
       : null,
-    monthlyIncome > 0 && monthlyExpenses / monthlyIncome < 0.5
+    netMonthlyIncome > 0 && monthlyExpenses / netMonthlyIncome < 0.5
       ? "Your spending is well within healthy ranges"
       : null,
     income && parseFloat(income.annualSalary) > 0
@@ -193,27 +193,15 @@ export default function BudgetAnalysis() {
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-muted-foreground">Monthly Cash Flow</span>
-            <div className="flex items-center space-x-2">
-              {cashFlow.status === "positive" ? (
-                <TrendingUp className="h-4 w-4 text-primary" />
-              ) : (
-                <TrendingDown className="h-4 w-4 text-destructive" />
-              )}
-              <span className={`text-lg font-bold ${
-                cashFlow.status === "positive" ? "text-primary" : "text-destructive"
-              }`}>
-                {cashFlow.status === "positive" ? "+" : ""}{formatCurrency(cashFlow.amount)}
-              </span>
-            </div>
           </div>
           
           <Progress 
-            value={Math.max(0, Math.min(100, 50 + cashFlow.percentage))}
+            value={Math.max(0, Math.min(100, cashFlow > 0 ? 75 : 25))}
             className="h-3"
           />
           
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>Income: {formatCurrency(monthlyIncome)}</span>
+            <span>Income: {formatCurrency(netMonthlyIncome)}</span>
             <span>Expenses: {formatCurrency(monthlyExpenses)}</span>
           </div>
         </div>
