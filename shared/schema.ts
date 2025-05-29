@@ -33,7 +33,7 @@ export const expenses = pgTable("expenses", {
   category: text("category").notNull(),
   description: text("description").notNull(),
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
-  frequency: text("frequency").notNull(), // monthly, weekly, bi-weekly, one-time
+  frequency: text("frequency").notNull(), // monthly, weekly, bi-weekly, yearly, one-time
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

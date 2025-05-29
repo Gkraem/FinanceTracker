@@ -362,19 +362,6 @@ export default function IncomeEstimator() {
                       {formatCurrency(taxCalculation.netMonthly)}
                     </span>
                   </div>
-                  
-                  <div className="mt-4 p-3 bg-card rounded-lg border">
-                    <div className="flex items-center text-sm">
-                      <DollarSign className="h-4 w-4 text-chart-4 mr-2" />
-                      <span className="text-muted-foreground">
-                        You're saving{" "}
-                        <strong className="text-primary">
-                          {savingsRate.toFixed(1)}%
-                        </strong>{" "}
-                        of your gross income!
-                      </span>
-                    </div>
-                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
