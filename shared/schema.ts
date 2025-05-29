@@ -58,11 +58,25 @@ export const retirementPlans = pgTable("retirement_plans", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const assets = pgTable("assets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  currentCash: decimal("current_cash", { precision: 12, scale: 2 }).notNull().default("0"),
+  current401k: decimal("current_401k", { precision: 12, scale: 2 }).notNull().default("0"),
+  currentRothIRA: decimal("current_roth_ira", { precision: 12, scale: 2 }).notNull().default("0"),
+  homeValue: decimal("home_value", { precision: 12, scale: 2 }).notNull().default("0"),
+  carValue: decimal("car_value", { precision: 12, scale: 2 }).notNull().default("0"),
+  personalInvestments: decimal("personal_investments", { precision: 12, scale: 2 }).notNull().default("0"),
+  otherAssets: decimal("other_assets", { precision: 12, scale: 2 }).notNull().default("0"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   incomeData: one(incomeData),
   expenses: many(expenses),
   budgetGoals: many(budgetGoals),
   retirementPlan: one(retirementPlans),
+  assets: one(assets),
 }));
 
 export const incomeDataRelations = relations(incomeData, ({ one }) => ({
@@ -89,6 +103,13 @@ export const budgetGoalsRelations = relations(budgetGoals, ({ one }) => ({
 export const retirementPlansRelations = relations(retirementPlans, ({ one }) => ({
   user: one(users, {
     fields: [retirementPlans.userId],
+    references: [users.id],
+  }),
+}));
+
+export const assetsRelations = relations(assets, ({ one }) => ({
+  user: one(users, {
+    fields: [assets.userId],
     references: [users.id],
   }),
 }));
@@ -124,6 +145,24 @@ export const insertBudgetGoalSchema = createInsertSchema(budgetGoals).omit({
 export const insertRetirementPlanSchema = createInsertSchema(retirementPlans).omit({
   id: true,
   updatedAt: true,
+}).extend({
+  expectedReturn: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 15, "Must be between 1 and 15"),
+  inflationRate: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 10, "Must be between 1 and 10"),
+  withdrawalRate: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 2 && Number(val) <= 8, "Must be between 2 and 8"),
+  targetNetWorth: z.string().optional().refine(val => !val || (!isNaN(Number(val)) && Number(val) >= 0), "Must be a valid positive number"),
+});
+
+export const insertAssetsSchema = createInsertSchema(assets).omit({
+  id: true,
+  updatedAt: true,
+}).extend({
+  currentCash: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  current401k: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  currentRothIRA: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  homeValue: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  carValue: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  personalInvestments: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  otherAssets: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
 });
 
 // Auth schemas
@@ -151,6 +190,8 @@ export type BudgetGoal = typeof budgetGoals.$inferSelect;
 export type InsertBudgetGoal = z.infer<typeof insertBudgetGoalSchema>;
 export type RetirementPlan = typeof retirementPlans.$inferSelect;
 export type InsertRetirementPlan = z.infer<typeof insertRetirementPlanSchema>;
+export type Assets = typeof assets.$inferSelect;
+export type InsertAssets = z.infer<typeof insertAssetsSchema>;
 
 export type LoginRequest = z.infer<typeof loginSchema>;
 export type RegisterRequest = z.infer<typeof registerSchema>;

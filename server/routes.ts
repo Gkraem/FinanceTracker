@@ -295,10 +295,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/retirement", requireAuth, async (req, res) => {
     try {
-      const planData = insertRetirementPlanSchema.parse({
+      const validatedData = insertRetirementPlanSchema.parse({
         ...req.body,
         userId: req.session.userId!,
       });
+
+      // Convert string values and handle empty targetNetWorth
+      const planData = {
+        ...validatedData,
+        expectedReturn: validatedData.expectedReturn,
+        inflationRate: validatedData.inflationRate,
+        withdrawalRate: validatedData.withdrawalRate,
+        targetNetWorth: validatedData.targetNetWorth || null,
+      };
 
       const plan = await storage.upsertRetirementPlan(planData);
       res.json({ plan });
