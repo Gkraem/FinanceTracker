@@ -174,16 +174,17 @@ export default function RetirementEstimator() {
   const promotionPercentage = parseFloat(retirementData?.plan?.promotionPercentage || "3");
   const companyMatchPercent = income ? parseFloat(income.companyMatch || "0") : 0;
   
-  // Calculate other investments (everything except 401k and Roth IRA)
-  const otherInvestments = currentCash + personalInvestments + homeValue + carValue + otherAssets;
-  
   const retirementCalc = calculateRetirement(
     currentAge,
     targetAge,
     grossAnnual,
+    monthlySavings,
     current401k,
     currentRothIRA,
-    otherInvestments,
+    personalInvestments,
+    currentCash,
+    carValue,
+    homeValue,
     contribution401kPercent,
     companyMatchPercent,
     promotionPercentage,
