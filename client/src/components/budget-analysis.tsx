@@ -248,9 +248,9 @@ export default function BudgetAnalysis() {
               {categoryAnalysis.map((category) => (
                 <div key={category.category}>
                   <div className="flex justify-between items-center text-sm mb-1">
-                    <Badge className={`${getCategoryColor(category.category)} border-0`}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCategoryColor(category.category)}`}>
                       {category.category}
-                    </Badge>
+                    </span>
                     <span className="text-card-foreground font-medium">
                       {formatCurrency(category.amount)} / {formatCurrency(category.budget)}
                     </span>
