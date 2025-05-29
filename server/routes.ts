@@ -165,10 +165,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/income", requireAuth, async (req, res) => {
     try {
-      const incomeData = insertIncomeDataSchema.parse({
+      const validatedData = insertIncomeDataSchema.parse({
         ...req.body,
         userId: req.session.userId!,
       });
+
+      // Convert string values to numbers for database storage
+      const incomeData = {
+        ...validatedData,
+        annualSalary: validatedData.annualSalary,
+        contribution401k: validatedData.contribution401k,
+        companyMatch: validatedData.companyMatch,
+        rothIRA: validatedData.rothIRA,
+        sideHustleIncome: validatedData.sideHustleIncome || "0",
+        inheritance: validatedData.inheritance || "0",
+      };
 
       const income = await storage.upsertIncomeData(incomeData);
       res.json({ income });

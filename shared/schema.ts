@@ -102,6 +102,13 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export const insertIncomeDataSchema = createInsertSchema(incomeData).omit({
   id: true,
   updatedAt: true,
+}).extend({
+  annualSalary: z.string().min(1, "Annual salary is required").refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  contribution401k: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100, "Must be between 0 and 100"),
+  companyMatch: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100, "Must be between 0 and 100"),
+  rothIRA: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
+  sideHustleIncome: z.string().optional().refine(val => !val || (!isNaN(Number(val)) && Number(val) >= 0), "Must be a valid positive number"),
+  inheritance: z.string().optional().refine(val => !val || (!isNaN(Number(val)) && Number(val) >= 0), "Must be a valid positive number"),
 });
 
 export const insertExpenseSchema = createInsertSchema(expenses).omit({
