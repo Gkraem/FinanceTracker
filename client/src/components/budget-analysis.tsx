@@ -197,10 +197,13 @@ export default function BudgetAnalysis() {
       </CardHeader>
       
       <CardContent className="p-6 space-y-6">
-        {/* Monthly Cash Flow */}
+        {/* Monthly Savings */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-muted-foreground">Monthly Cash Flow</span>
+            <span className="text-sm font-medium text-muted-foreground">Monthly Savings</span>
+            <span className="text-sm font-medium text-card-foreground">
+              {formatCurrency(cashFlow)}
+            </span>
           </div>
           
           <Progress 
