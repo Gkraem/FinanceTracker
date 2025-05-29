@@ -206,10 +206,7 @@ export default function BudgetAnalysis() {
             </span>
           </div>
           
-          <Progress 
-            value={Math.max(0, Math.min(100, cashFlow > 0 ? 75 : 25))}
-            className="h-3"
-          />
+
           
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>Income: {formatCurrency(netMonthlyIncome)}</span>

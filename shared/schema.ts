@@ -50,6 +50,7 @@ export const budgetGoals = pgTable("budget_goals", {
 export const retirementPlans = pgTable("retirement_plans", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
+  currentAge: integer("current_age").notNull().default(30),
   targetRetirementAge: integer("target_retirement_age").notNull(),
   expectedReturn: decimal("expected_return", { precision: 5, scale: 2 }).notNull().default("7.0"),
   inflationRate: decimal("inflation_rate", { precision: 5, scale: 2 }).notNull().default("3.0"),

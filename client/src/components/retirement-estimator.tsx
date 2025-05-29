@@ -69,6 +69,7 @@ export default function RetirementEstimator() {
   } = useForm<Omit<InsertRetirementPlan, "userId">>({
     resolver: zodResolver(insertRetirementPlanSchema.omit({ userId: true })),
     defaultValues: {
+      currentAge: 30,
       targetRetirementAge: 65,
       expectedReturn: "7.0",
       inflationRate: "3.0",
@@ -105,6 +106,7 @@ export default function RetirementEstimator() {
     if (retirementData?.plan) {
       const plan = retirementData.plan;
       reset({
+        currentAge: plan.currentAge || 30,
         targetRetirementAge: plan.targetRetirementAge,
         expectedReturn: plan.expectedReturn,
         inflationRate: plan.inflationRate,
@@ -123,7 +125,7 @@ export default function RetirementEstimator() {
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
   const assets = assetsData?.assets;
-  const currentAge = 30; // Would be calculated from user's birth date in real app
+  const currentAge = retirementData?.plan?.currentAge || 30;
 
   // Calculate net monthly income (same as budget analysis)
   const salary = income ? parseFloat(income.annualSalary || "0") : 0;
@@ -232,6 +234,20 @@ export default function RetirementEstimator() {
               </DialogHeader>
               
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentAge">Current Age</Label>
+                  <Input
+                    id="currentAge"
+                    type="number"
+                    min="18"
+                    max="80"
+                    {...register("currentAge", { valueAsNumber: true })}
+                  />
+                  {errors.currentAge && (
+                    <p className="text-sm text-destructive">{errors.currentAge.message}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="targetRetirementAge">Target Retirement Age</Label>
                   <Input
