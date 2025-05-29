@@ -31,6 +31,8 @@ const CATEGORY_BUDGETS: Record<string, number> = {
   "Insurance": 0.10, // 10% of income
   "Student Debt": 0.10, // 10% of income
   "Shopping": 0.06, // 6% of income
+  "Dining Out": 0.08, // 8% of income
+  "Other": 0.05, // 5% of income
 };
 
 export default function BudgetAnalysis() {
@@ -71,12 +73,18 @@ export default function BudgetAnalysis() {
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
 
-  // Calculate net monthly income (after taxes and 401k)
-  const grossAnnual = income ? parseFloat(income.annualSalary) : 0;
-  const grossMonthly = grossAnnual / 12;
-  const taxes = income ? calculateTax(grossAnnual, income.state) : { federal: 0, state: 0, fica: 0 };
-  const contribution401k = income?.contribution401k ? parseFloat(income.contribution401k) / 12 : 0;
-  const netMonthlyIncome = grossMonthly - (taxes.federal / 12) - (taxes.state / 12) - (taxes.fica / 12) - contribution401k;
+  // Calculate net monthly income (exact same calculation as income estimator)
+  const salary = income ? parseFloat(income.annualSalary || "0") : 0;
+  const contribution401kPercent = income ? parseFloat(income.contribution401k || "0") : 0;
+  const sideHustle = income ? parseFloat(income.sideHustleIncome || "0") : 0;
+  const state = income?.state || "California";
+  
+  const grossAnnual = salary + sideHustle;
+  const contribution401k = (salary * contribution401kPercent) / 100;
+  const taxableIncome = grossAnnual - contribution401k;
+  const taxes = grossAnnual > 0 ? calculateTax(taxableIncome, state) : { federal: 0, state: 0, fica: 0 };
+  const netAnnual = taxableIncome - taxes.federal - taxes.state - taxes.fica;
+  const netMonthlyIncome = netAnnual / 12;
   const monthlyExpenses = expenses.reduce((total, expense) => {
     const amount = parseFloat(expense.amount);
     switch (expense.frequency) {
