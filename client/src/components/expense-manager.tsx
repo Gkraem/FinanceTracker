@@ -73,6 +73,8 @@ interface ExpenseResponse {
 
 export default function ExpenseManager() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();

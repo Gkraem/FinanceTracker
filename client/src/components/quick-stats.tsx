@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, TrendingDown, DollarSign, PiggyBank, Target } from "lucide-react";
-import { formatCurrency, formatPercentage, calculateMonthlyCashFlow } from "@/lib/utils";
+import { formatCurrency, formatPercentage, calculateTax, calculateMonthlyCashFlow } from "@/lib/utils";
 import type { IncomeData, Expense } from "@shared/schema";
 
 interface IncomeResponse {
@@ -41,8 +41,14 @@ export default function QuickStats() {
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
 
-  // Calculate monthly values
-  const monthlyIncome = income ? parseFloat(income.annualSalary) / 12 : 0;
+  // Calculate net monthly income (after taxes and 401k)
+  const monthlyIncome = income ? (() => {
+    const grossAnnual = parseFloat(income.annualSalary);
+    const taxCalc = calculateTax(grossAnnual, income.state);
+    const contribution401k = parseFloat(income.contribution401k || "0");
+    const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - (grossAnnual * contribution401k / 100);
+    return netAnnual / 12;
+  })() : 0;
   const monthlyExpenses = expenses.reduce((total, expense) => {
     const amount = parseFloat(expense.amount);
     switch (expense.frequency) {

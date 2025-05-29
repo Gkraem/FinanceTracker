@@ -133,11 +133,25 @@ export function formatPhone(phone: string): string {
 }
 
 export function calculateMonthlyCashFlow(
-  monthlyIncome: number,
-  monthlyExpenses: number
+  income: any,
+  expenses: any[]
 ): { amount: number; percentage: number; status: 'positive' | 'negative' | 'break-even' } {
-  const amount = monthlyIncome - monthlyExpenses;
-  const percentage = monthlyIncome > 0 ? (amount / monthlyIncome) * 100 : 0;
+  if (!income) return { amount: 0, percentage: 0, status: 'break-even' };
+
+  const grossAnnual = parseFloat(income.annualSalary || "0");
+  const taxCalc = calculateTax(grossAnnual, income.state);
+  const contribution401k = parseFloat(income.contribution401k || "0");
+  
+  // Calculate net monthly income (after taxes and 401k)
+  const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - (grossAnnual * contribution401k / 100);
+  const netMonthly = netAnnual / 12;
+  
+  const monthlyExpenses = expenses.reduce((sum, expense) => 
+    sum + parseFloat(expense.amount), 0
+  );
+
+  const amount = netMonthly - monthlyExpenses;
+  const percentage = netMonthly > 0 ? (amount / netMonthly) * 100 : 0;
   
   let status: 'positive' | 'negative' | 'break-even' = 'break-even';
   if (amount > 0) status = 'positive';
