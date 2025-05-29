@@ -87,7 +87,7 @@ export default function QuickStats() {
 
   const stats = [
     {
-      title: "Monthly Income",
+      title: "Net Monthly Income",
       value: formatCurrency(monthlyIncome),
       change: "+12%",
       trend: "up" as const,
