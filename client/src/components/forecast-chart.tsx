@@ -70,7 +70,7 @@ export default function ForecastChart() {
         chartInstance.current = null;
       }
     };
-  }, [selectedTimeframe, selectedMetric, incomeData, expensesData]);
+  }, [selectedTimeframe, selectedMetric, incomeData, expensesData, assetsData]);
 
   const initializeChart = () => {
     if (!chartRef.current || !window.Chart) return;
@@ -97,6 +97,8 @@ export default function ForecastChart() {
           return total + amount * 4.33;
         case "bi-weekly":
           return total + amount * 2.17;
+        case "yearly":
+          return total + amount / 12;
         case "one-time":
           return total + amount / 12;
         default:
@@ -108,8 +110,21 @@ export default function ForecastChart() {
     const timeframe = TIMEFRAMES.find(t => t.value === selectedTimeframe);
     const years = timeframe?.years || 5;
 
+    // Get current asset values from assets data
+    const assets = assetsData?.assets;
+    const currentCash = assets ? parseFloat(assets.currentCash || "0") : 0;
+    const personalInvestments = assets ? parseFloat(assets.personalInvestments || "0") : 0;
+    const homeValue = assets ? parseFloat(assets.homeValue || "0") : 0;
+    const carValue = assets ? parseFloat(assets.carValue || "0") : 0;
+    const current401k = assets ? parseFloat(assets.current401k || "0") : 0;
+    const currentRothIRA = assets ? parseFloat(assets.currentRothIRA || "0") : 0;
+    const otherAssets = assets ? parseFloat(assets.otherAssets || "0") : 0;
+    
+    // Calculate current net worth
+    const currentNetWorth = currentCash + personalInvestments + homeValue + carValue + current401k + currentRothIRA + otherAssets;
+
     let chartData: { year: number; value: number }[] = [];
-    let startValue = 185000; // Base net worth
+    let startValue = currentNetWorth;
     let monthlyContribution = Math.max(0, monthlySavings);
 
     switch (selectedMetric) {
@@ -118,11 +133,11 @@ export default function ForecastChart() {
         break;
       case "401k":
         const contribution401k = income ? (parseFloat(income.annualSalary) * parseFloat(income.contribution401k)) / 100 / 12 : 0;
-        chartData = generateProjectionData(85000, contribution401k, 0.08, years);
+        chartData = generateProjectionData(current401k, contribution401k, 0.08, years);
         break;
       case "rothira":
         const rothContribution = income ? parseFloat(income.rothIRA) / 12 : 0;
-        chartData = generateProjectionData(25000, rothContribution, 0.07, years);
+        chartData = generateProjectionData(currentRothIRA, rothContribution, 0.07, years);
         break;
     }
 

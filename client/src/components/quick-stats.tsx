@@ -67,6 +67,8 @@ export default function QuickStats() {
         return total + amount * 4.33;
       case "bi-weekly":
         return total + amount * 2.17;
+      case "yearly":
+        return total + amount / 12;
       case "one-time":
         return total + amount / 12;
       default:

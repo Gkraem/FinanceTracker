@@ -32,6 +32,7 @@ const CATEGORY_BUDGETS: Record<string, number> = {
   "Student Debt": 0.10, // 10% of income
   "Shopping": 0.06, // 6% of income
   "Dining Out": 0.08, // 8% of income
+  "Roth IRA": 0.10, // 10% of income
   "Other": 0.05, // 5% of income
 };
 
@@ -115,6 +116,9 @@ export default function BudgetAnalysis() {
         break;
       case "bi-weekly":
         monthlyAmount = amount * 2.17;
+        break;
+      case "yearly":
+        monthlyAmount = amount / 12;
         break;
       case "one-time":
         monthlyAmount = amount / 12;
