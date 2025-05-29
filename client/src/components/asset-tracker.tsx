@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -33,10 +33,13 @@ export default function AssetTracker() {
 
   const updateAssets = useMutation({
     mutationFn: async (data: typeof formData) => {
-      return apiRequest("/api/assets", {
+      const response = await fetch("/api/assets", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to update assets");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
@@ -55,7 +58,7 @@ export default function AssetTracker() {
   });
 
   // Update form data when assets data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (assetsData?.assets) {
       const assets = assetsData.assets;
       setFormData({

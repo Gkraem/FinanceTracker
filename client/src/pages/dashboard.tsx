@@ -5,6 +5,7 @@ import IncomeEstimator from "@/components/income-estimator";
 import BudgetAnalysis from "@/components/budget-analysis";
 import ForecastChart from "@/components/forecast-chart";
 import RetirementEstimator from "@/components/retirement-estimator";
+import AssetTracker from "@/components/asset-tracker";
 import { useAuth } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
 
@@ -37,6 +38,9 @@ export default function Dashboard() {
 
             {/* Expense Manager */}
             <ExpenseManager />
+
+            {/* Asset Tracker */}
+            <AssetTracker />
 
             {/* Income & Tax Estimator */}
             <IncomeEstimator />
