@@ -143,8 +143,41 @@ export default function ExpenseManager() {
     },
   });
 
+  const updateExpenseMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Omit<InsertExpense, "userId"> }) => {
+      await apiRequest("PATCH", `/api/expenses/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+      setIsEditDialogOpen(false);
+      setEditingExpense(null);
+      toast({
+        title: "Expense updated",
+        description: "Your expense has been successfully updated.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update expense.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: Omit<InsertExpense, "userId">) => {
     createExpenseMutation.mutate(data);
+  };
+
+  const onEditSubmit = (data: Omit<InsertExpense, "userId">) => {
+    if (editingExpense) {
+      updateExpenseMutation.mutate({ id: editingExpense.id, data });
+    }
+  };
+
+  const handleEditExpense = (expense: Expense) => {
+    setEditingExpense(expense);
+    setIsEditDialogOpen(true);
   };
 
   const handleDeleteExpense = (expenseId: number) => {

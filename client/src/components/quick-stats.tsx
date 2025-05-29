@@ -92,8 +92,7 @@ export default function QuickStats() {
     {
       title: "Net Monthly Income",
       value: formatCurrency(monthlyIncome),
-      change: "+12%",
-      trend: "up" as const,
+
       icon: DollarSign,
       color: "text-primary",
       bgColor: "bg-primary/10",
@@ -151,21 +150,7 @@ export default function QuickStats() {
                   <Icon className={`h-5 w-5 ${stat.color}`} />
                 </div>
               </div>
-              <div className="mt-4 flex items-center text-sm">
-                {stat.trend === "up" ? (
-                  <TrendingUp className="h-4 w-4 text-primary mr-1" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-destructive mr-1" />
-                )}
-                <span
-                  className={
-                    stat.trend === "up" ? "text-primary" : "text-destructive"
-                  }
-                >
-                  {stat.change}
-                </span>
-                <span className="text-muted-foreground ml-2">vs last month</span>
-              </div>
+
             </CardContent>
           </Card>
         );
