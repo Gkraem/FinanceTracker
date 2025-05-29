@@ -187,7 +187,6 @@ export default function RetirementEstimator() {
     contribution401kPercent,
     companyMatchPercent,
     promotionPercentage,
-    monthlySavings,
     expectedReturn
   );
 
