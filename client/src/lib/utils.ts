@@ -146,9 +146,9 @@ export function calculateMonthlyCashFlow(
   const netAnnual = grossAnnual - taxCalc.federal - taxCalc.state - taxCalc.fica - (grossAnnual * contribution401k / 100);
   const netMonthly = netAnnual / 12;
   
-  const monthlyExpenses = expenses.reduce((sum, expense) => 
+  const monthlyExpenses = Array.isArray(expenses) ? expenses.reduce((sum, expense) => 
     sum + parseFloat(expense.amount), 0
-  );
+  ) : 0;
 
   const amount = netMonthly - monthlyExpenses;
   const percentage = netMonthly > 0 ? (amount / netMonthly) * 100 : 0;
