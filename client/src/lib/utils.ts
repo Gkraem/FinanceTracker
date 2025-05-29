@@ -48,21 +48,43 @@ export function calculateRetirement(
   currentAge: number,
   retirementAge: number,
   currentSavings: number,
-  monthlyContribution: number,
+  initialAnnualSalary: number,
+  contribution401kPercent: number,
+  companyMatch: number,
+  promotionPercentage: number,
   annualReturn: number = 0.07
 ): { projectedSavings: number; monthlyIncome: number } {
   const yearsToRetirement = retirementAge - currentAge;
-  const monthsToRetirement = yearsToRetirement * 12;
   const monthlyReturn = annualReturn / 12;
   
   // Future value of current savings
   const futureValueCurrent = currentSavings * Math.pow(1 + annualReturn, yearsToRetirement);
   
-  // Future value of monthly contributions (annuity)
-  const futureValueContributions = monthlyContribution * 
-    (Math.pow(1 + monthlyReturn, monthsToRetirement) - 1) / monthlyReturn;
+  let totalContributions = 0;
+  let currentSalary = initialAnnualSalary;
   
-  const projectedSavings = futureValueCurrent + futureValueContributions;
+  // Calculate contributions for each year with salary growth
+  for (let year = 0; year < yearsToRetirement; year++) {
+    // Employee 401k contribution
+    const employee401k = currentSalary * (contribution401kPercent / 100);
+    
+    // Company match (typically matches up to a certain percentage)
+    const employerMatch = Math.min(employee401k, currentSalary * (companyMatch / 100));
+    
+    // Total annual contribution to retirement accounts
+    const annualContribution = employee401k + employerMatch;
+    
+    // Calculate future value of this year's contributions
+    const yearsOfGrowth = yearsToRetirement - year;
+    const futureValue = annualContribution * Math.pow(1 + annualReturn, yearsOfGrowth);
+    
+    totalContributions += futureValue;
+    
+    // Apply salary increase for next year
+    currentSalary *= (1 + promotionPercentage / 100);
+  }
+  
+  const projectedSavings = futureValueCurrent + totalContributions;
   
   // 4% rule for retirement income
   const monthlyIncome = (projectedSavings * 0.04) / 12;

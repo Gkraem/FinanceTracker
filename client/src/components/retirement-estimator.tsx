@@ -171,11 +171,17 @@ export default function RetirementEstimator() {
   const targetAge = retirementData?.plan?.targetRetirementAge || 65;
   const expectedReturn = parseFloat(retirementData?.plan?.expectedReturn || "7") / 100;
 
+  const promotionPercentage = parseFloat(retirementData?.plan?.promotionPercentage || "3");
+  const companyMatchPercent = income ? parseFloat(income.companyMatch || "0") : 0;
+  
   const retirementCalc = calculateRetirement(
     currentAge,
     targetAge,
     currentNetWorth,
-    monthlySavings,
+    grossAnnual,
+    contribution401kPercent,
+    companyMatchPercent,
+    promotionPercentage,
     expectedReturn
   );
 
