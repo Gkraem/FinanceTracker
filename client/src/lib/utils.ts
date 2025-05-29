@@ -47,76 +47,107 @@ export function calculateTax(income: number, state: string): { federal: number; 
 export function calculateRetirement(
   currentAge: number,
   retirementAge: number,
-  currentNetWorth: number,
-  initialMonthlySavings: number,
+  grossAnnualSalary: number,
+  current401k: number,
+  currentRothIRA: number,
+  otherInvestments: number,
+  contribution401kPercent: number,
+  companyMatchPercent: number,
   promotionPercentage: number,
-  annualReturn: number = 0.07
+  nominalReturn: number = 0.07,
+  inflationRate: number = 0.03
 ): { 
   projectedSavings: number; 
   monthlyIncome: number;
-  futureValueCurrent: number;
-  futureValueContributions: number;
+  projected401k: number;
+  projectedRothIRA: number;
+  projectedOtherInvestments: number;
   calculationSteps: string[];
 } {
   const yearsToRetirement = retirementAge - currentAge;
-  const monthlyReturn = annualReturn / 12;
   
-  // Future value of current net worth
-  const futureValueCurrent = currentNetWorth * Math.pow(1 + annualReturn, yearsToRetirement);
+  // Real growth rate = ((1 + nominal) / (1 + inflation)) - 1
+  const realGrowthRate = ((1 + nominalReturn) / (1 + inflationRate)) - 1;
   
-  let totalContributions = 0;
-  let currentMonthlySavings = initialMonthlySavings;
   const calculationSteps: string[] = [];
   
-  calculationSteps.push(`Starting net worth: ${formatCurrency(currentNetWorth)}`);
-  calculationSteps.push(`Years to retirement: ${yearsToRetirement}`);
-  calculationSteps.push(`Expected annual return: ${(annualReturn * 100).toFixed(1)}%`);
-  calculationSteps.push(`Current monthly savings: ${formatCurrency(initialMonthlySavings)}`);
-  calculationSteps.push(`Annual salary increase: ${promotionPercentage}%`);
+  calculationSteps.push(`🏁 Starting Values:`);
+  calculationSteps.push(`Current Age: ${currentAge}`);
+  calculationSteps.push(`Retirement Age: ${retirementAge}`);
+  calculationSteps.push(`Years to Retirement: ${yearsToRetirement}`);
+  calculationSteps.push(`Starting Salary: ${formatCurrency(grossAnnualSalary)}`);
+  calculationSteps.push(`401k Contribution: ${contribution401kPercent}%`);
+  calculationSteps.push(`Company Match: ${companyMatchPercent}%`);
+  calculationSteps.push(`Annual Raise: ${promotionPercentage}%`);
+  calculationSteps.push(`Real Growth Rate: ${(realGrowthRate * 100).toFixed(2)}%`);
   calculationSteps.push('');
-  calculationSteps.push('Future value of current net worth:');
-  calculationSteps.push(`${formatCurrency(currentNetWorth)} × (1.${(annualReturn * 100).toFixed(0)})^${yearsToRetirement} = ${formatCurrency(futureValueCurrent)}`);
-  calculationSteps.push('');
-  calculationSteps.push('Future value of monthly savings with salary growth:');
   
-  // Calculate contributions for each year with salary growth
-  for (let year = 0; year < yearsToRetirement; year++) {
-    const annualSavings = currentMonthlySavings * 12;
+  calculationSteps.push(`📊 Current Balances:`);
+  calculationSteps.push(`401k Balance: ${formatCurrency(current401k)}`);
+  calculationSteps.push(`Roth IRA Balance: ${formatCurrency(currentRothIRA)}`);
+  calculationSteps.push(`Other Investments: ${formatCurrency(otherInvestments)}`);
+  calculationSteps.push('');
+  
+  // Track each account separately
+  let salary = grossAnnualSalary;
+  let balance401k = current401k;
+  let balanceRothIRA = currentRothIRA;
+  let balanceOtherInvestments = otherInvestments;
+  
+  const rothIRALimit = 7000; // Annual limit
+  
+  calculationSteps.push(`📈 Year-by-Year Calculation:`);
+  
+  // Calculate each year
+  for (let year = 1; year <= yearsToRetirement; year++) {
+    // 1. Salary Growth
+    salary = salary * (1 + promotionPercentage / 100);
     
-    // Calculate future value of this year's contributions
-    const yearsOfGrowth = yearsToRetirement - year;
-    const futureValue = annualSavings * Math.pow(1 + annualReturn, yearsOfGrowth);
+    // 2. 401k Contributions and Growth
+    const employee401kContrib = salary * (contribution401kPercent / 100);
+    const companyMatch = salary * (companyMatchPercent / 100);
+    balance401k = (balance401k + employee401kContrib + companyMatch) * (1 + realGrowthRate);
     
-    totalContributions += futureValue;
+    // 3. Roth IRA Growth
+    balanceRothIRA = (balanceRothIRA + rothIRALimit) * (1 + realGrowthRate);
     
-    if (year < 5 || year === yearsToRetirement - 1) {
-      calculationSteps.push(`Year ${year + 1}: ${formatCurrency(annualSavings)} × (1.${(annualReturn * 100).toFixed(0)})^${yearsOfGrowth} = ${formatCurrency(futureValue)}`);
-    } else if (year === 5) {
-      calculationSteps.push('... (continuing for all years)');
+    // 4. Other Investments Growth
+    balanceOtherInvestments = balanceOtherInvestments * (1 + realGrowthRate);
+    
+    // Show first 5 years and last year
+    if (year <= 5 || year === yearsToRetirement) {
+      calculationSteps.push(`Year ${year}:`);
+      calculationSteps.push(`  Salary: ${formatCurrency(salary)}`);
+      calculationSteps.push(`  401k: ${formatCurrency(balance401k)} (+ ${formatCurrency(employee401kContrib + companyMatch)})`);
+      calculationSteps.push(`  Roth: ${formatCurrency(balanceRothIRA)} (+ ${formatCurrency(rothIRALimit)})`);
+      calculationSteps.push(`  Other: ${formatCurrency(balanceOtherInvestments)}`);
+      calculationSteps.push('');
+    } else if (year === 6) {
+      calculationSteps.push('... (continuing calculations for all years)');
+      calculationSteps.push('');
     }
-    
-    // Apply salary increase for next year (increases monthly savings)
-    currentMonthlySavings *= (1 + promotionPercentage / 100);
   }
   
-  calculationSteps.push('');
-  calculationSteps.push(`Total future value of contributions: ${formatCurrency(totalContributions)}`);
+  const projectedSavings = balance401k + balanceRothIRA + balanceOtherInvestments;
   
-  const projectedSavings = futureValueCurrent + totalContributions;
+  calculationSteps.push(`💰 Final Results at Age ${retirementAge}:`);
+  calculationSteps.push(`401k Balance: ${formatCurrency(balance401k)}`);
+  calculationSteps.push(`Roth IRA Balance: ${formatCurrency(balanceRothIRA)}`);
+  calculationSteps.push(`Other Investments: ${formatCurrency(balanceOtherInvestments)}`);
+  calculationSteps.push(`Total Net Worth: ${formatCurrency(projectedSavings)}`);
   calculationSteps.push('');
-  calculationSteps.push(`Total projected savings: ${formatCurrency(futureValueCurrent)} + ${formatCurrency(totalContributions)} = ${formatCurrency(projectedSavings)}`);
   
   // 4% rule for retirement income
   const monthlyIncome = (projectedSavings * 0.04) / 12;
-  calculationSteps.push('');
-  calculationSteps.push('Monthly retirement income (4% rule):');
+  calculationSteps.push(`🏖️ Monthly Retirement Income (4% rule):`);
   calculationSteps.push(`${formatCurrency(projectedSavings)} × 4% ÷ 12 = ${formatCurrency(monthlyIncome)}`);
   
   return {
     projectedSavings,
     monthlyIncome,
-    futureValueCurrent,
-    futureValueContributions: totalContributions,
+    projected401k: balance401k,
+    projectedRothIRA: balanceRothIRA,
+    projectedOtherInvestments: balanceOtherInvestments,
     calculationSteps,
   };
 }
