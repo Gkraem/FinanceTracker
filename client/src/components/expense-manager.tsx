@@ -58,8 +58,8 @@ const getCategoryColor = (category: string) => {
     "Entertainment": "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
     "Groceries": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     "Transportation": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    "Dining Out": "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
-    "Shopping": "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
+    "Dining Out": "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-300",
+    "Shopping": "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-300",
     "Roth IRA": "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
     "Student Debt": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
     "Healthcare": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
@@ -67,6 +67,24 @@ const getCategoryColor = (category: string) => {
     "Other": "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
   };
   return colors[category] || "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+};
+
+const getMonthlyAmount = (amount: string, frequency: string): number => {
+  const numAmount = parseFloat(amount);
+  switch (frequency) {
+    case "monthly":
+      return numAmount;
+    case "weekly":
+      return numAmount * 4.33;
+    case "bi-weekly":
+      return numAmount * 2.17;
+    case "yearly":
+      return numAmount / 12;
+    case "one-time":
+      return numAmount / 12;
+    default:
+      return numAmount;
+  }
 };
 
 interface ExpensesResponse {
@@ -498,7 +516,7 @@ export default function ExpenseManager() {
                 <tr className="border-b border-border">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Category</th>
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">Description</th>
-                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Amount</th>
+                  <th className="text-right py-3 px-4 font-medium text-muted-foreground">Monthly Amount</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground">Frequency</th>
                   <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
                 </tr>
@@ -516,7 +534,7 @@ export default function ExpenseManager() {
                     </td>
                     <td className="py-3 px-4 text-card-foreground">{expense.description}</td>
                     <td className="py-3 px-4 text-right font-semibold text-card-foreground">
-                      {formatCurrency(parseFloat(expense.amount))}
+                      {formatCurrency(getMonthlyAmount(expense.amount, expense.frequency))}
                     </td>
                     <td className="py-3 px-4 text-right text-muted-foreground capitalize">
                       {expense.frequency.replace("-", " ")}
