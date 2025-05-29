@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Lightbulb, PieChart, TrendingUp, TrendingDown } from "lucide-react";
 import { formatCurrency, calculateMonthlyCashFlow, calculateTax } from "@/lib/utils";
 import type { IncomeData, Expense } from "@shared/schema";
@@ -34,6 +35,24 @@ const CATEGORY_BUDGETS: Record<string, number> = {
   "Dining Out": 0.08, // 8% of income
   "Roth IRA": 0.10, // 10% of income
   "Other": 0.05, // 5% of income
+};
+
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    "Rent": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    "Insurance": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+    "Entertainment": "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300",
+    "Groceries": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+    "Transportation": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+    "Dining Out": "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-300",
+    "Shopping": "bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-300",
+    "Roth IRA": "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
+    "Student Debt": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+    "Healthcare": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+    "Utilities": "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300",
+    "Other": "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
+  };
+  return colors[category] || "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
 };
 
 export default function BudgetAnalysis() {
@@ -228,8 +247,10 @@ export default function BudgetAnalysis() {
             <div className="space-y-3">
               {categoryAnalysis.map((category) => (
                 <div key={category.category}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">{category.category}</span>
+                  <div className="flex justify-between items-center text-sm mb-1">
+                    <Badge variant="secondary" className={getCategoryColor(category.category)}>
+                      {category.category}
+                    </Badge>
                     <span className="text-card-foreground font-medium">
                       {formatCurrency(category.amount)} / {formatCurrency(category.budget)}
                     </span>
