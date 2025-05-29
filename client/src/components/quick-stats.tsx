@@ -77,7 +77,8 @@ export default function QuickStats() {
   }, 0);
 
   const cashFlow = calculateMonthlyCashFlow(income, expenses);
-  const savingsRate = monthlyIncome > 0 ? (cashFlow.amount / monthlyIncome) * 100 : 0;
+  const monthlySavings = monthlyIncome - monthlyExpenses;
+  const savingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
 
   // Calculate actual net worth from asset tracker data
   const netWorth = assets ? 
