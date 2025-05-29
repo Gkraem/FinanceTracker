@@ -410,6 +410,7 @@ export default function ExpenseManager() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleEditExpense(expense)}
                           className="text-muted-foreground hover:text-primary"
                         >
                           <Edit2 className="h-4 w-4" />

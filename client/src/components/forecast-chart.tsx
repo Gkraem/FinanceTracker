@@ -49,6 +49,10 @@ export default function ForecastChart() {
     queryKey: ["/api/expenses"],
   });
 
+  const { data: assetsData } = useQuery<{assets: any}>({
+    queryKey: ["/api/assets"],
+  });
+
   useEffect(() => {
     // Load Chart.js if not already loaded
     if (!window.Chart) {
