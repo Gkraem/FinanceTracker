@@ -38,6 +38,7 @@ function AuthenticatedApp() {
   return (
     <Switch>
       <Route path="/admin" component={Admin} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
