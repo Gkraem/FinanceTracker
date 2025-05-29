@@ -54,6 +54,7 @@ export function calculateRetirement(
   contribution401kPercent: number,
   companyMatchPercent: number,
   promotionPercentage: number,
+  monthlySavings: number,
   nominalReturn: number = 0.07,
   inflationRate: number = 0.03
 ): { 
@@ -79,6 +80,7 @@ export function calculateRetirement(
   calculationSteps.push(`401k Contribution: ${contribution401kPercent}%`);
   calculationSteps.push(`Company Match: ${companyMatchPercent}%`);
   calculationSteps.push(`Annual Raise: ${promotionPercentage}%`);
+  calculationSteps.push(`Monthly Savings: ${formatCurrency(monthlySavings)}`);
   calculationSteps.push(`Real Growth Rate: ${(realGrowthRate * 100).toFixed(2)}%`);
   calculationSteps.push('');
   
@@ -93,6 +95,7 @@ export function calculateRetirement(
   let balance401k = current401k;
   let balanceRothIRA = currentRothIRA;
   let balanceOtherInvestments = otherInvestments;
+  let currentMonthlySavings = monthlySavings;
   
   const rothIRALimit = 7000; // Annual limit
   
@@ -111,8 +114,15 @@ export function calculateRetirement(
     // 3. Roth IRA Growth
     balanceRothIRA = (balanceRothIRA + rothIRALimit) * (1 + realGrowthRate);
     
-    // 4. Other Investments Growth
-    balanceOtherInvestments = balanceOtherInvestments * (1 + realGrowthRate);
+    // 4. Other Investments Growth (including monthly savings)
+    // Calculate remaining monthly savings after 401k and Roth IRA
+    const totalRetirementContribs = employee401kContrib + companyMatch + rothIRALimit;
+    const remainingMonthlySavings = Math.max(0, currentMonthlySavings * 12 - totalRetirementContribs);
+    
+    balanceOtherInvestments = (balanceOtherInvestments + remainingMonthlySavings) * (1 + realGrowthRate);
+    
+    // Monthly savings grow with salary
+    currentMonthlySavings = currentMonthlySavings * (1 + promotionPercentage / 100);
     
     // Show first 5 years and last year
     if (year <= 5 || year === yearsToRetirement) {
@@ -120,7 +130,7 @@ export function calculateRetirement(
       calculationSteps.push(`  Salary: ${formatCurrency(salary)}`);
       calculationSteps.push(`  401k: ${formatCurrency(balance401k)} (+ ${formatCurrency(employee401kContrib + companyMatch)})`);
       calculationSteps.push(`  Roth: ${formatCurrency(balanceRothIRA)} (+ ${formatCurrency(rothIRALimit)})`);
-      calculationSteps.push(`  Other: ${formatCurrency(balanceOtherInvestments)}`);
+      calculationSteps.push(`  Other: ${formatCurrency(balanceOtherInvestments)} (+ ${formatCurrency(remainingMonthlySavings)})`);
       calculationSteps.push('');
     } else if (year === 6) {
       calculationSteps.push('... (continuing calculations for all years)');
