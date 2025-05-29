@@ -1,0 +1,193 @@
+Great — here's an updated version of the **SRS for Finance Tracker**, now with **heavy emphasis on a modern, responsive UI**:
+
+---
+
+# **Software Requirements Specification (SRS)**
+
+### **Project Name:** Finance Tracker
+
+### **Version:** 1.1
+
+### **Last Updated:** May 29, 2025
+
+---
+
+## **1. Introduction**
+
+### **1.1 Purpose**
+
+The goal of this project is to develop **Finance Tracker**, a web-based personal finance and budgeting application with a clean, modern, responsive UI. The platform should allow users to manage income, expenses, and future planning with intuitive design and visual feedback.
+
+### **1.2 Scope**
+
+Finance Tracker will allow users to:
+
+* Register and manage a secure personal account
+* Input detailed financial data
+* View personalized summaries and recommendations
+* Track net worth and retirement forecasts with interactive graphs
+* Provide admin-only access for monitoring user activity
+  **The application will prioritize a highly aesthetic, modern, and responsive user experience** using up-to-date UI/UX design patterns (e.g., cards, dropdowns, light/dark modes, chart animations, etc.).
+
+---
+
+## **2. Overall Description**
+
+### **2.1 User Classes**
+
+* **Standard Users**: Enter and manage personal finance data, receive insights
+* **Admin User**: Exclusive access to Admin Panel (user with phone number `2402857119`)
+
+### **2.2 Design Priorities**
+
+* **Modern UI Design**:
+
+  * Clean dashboard layout using grid/flexbox systems
+  * Card-style components for inputs, summaries, and graphs
+  * Animated dropdowns and modal windows
+  * Icon-driven navigation and user avatars
+  * Mobile-first, responsive design with transitions and hover states
+
+---
+
+## **3. Functional Requirements**
+
+### **3.1 Authentication**
+
+* **Sign Up Form**:
+
+  * Required: First name, Last name, Email, Phone Number, Password
+  * Real-time form validation and animations
+* **Sign In**:
+
+  * Branded login screen with smooth transitions
+* **Session Management**:
+
+  * Persistent login with auto-logout timeout
+* **Responsive Design**:
+
+  * Inputs adapt to mobile, tablet, and desktop
+
+---
+
+### **3.2 Navigation & User Interface**
+
+* **Navigation Bar** (Sticky Top):
+
+  * App logo
+  * User bubble on right with dropdown menu:
+
+    * “Account Info” (modal form to edit details)
+    * “Log Out” (returns to Sign In)
+
+* **Admin Panel Button**:
+
+  * Displayed **only** if user phone = `2402857119`
+  * Located in navigation bar or sidebar (adaptive)
+
+---
+
+### **3.3 Dashboard Features**
+
+#### **3.3.1 Expense Manager**
+
+* **Dropdown Menu**: Rent, Insurance, Student Debt, etc.
+* Corresponding animated input fields (slide in or modal)
+* Submit/update button
+* Displayed in **interactive, editable table** with inline editing and color-coded categories
+
+#### **3.3.2 Income & Tax Estimator**
+
+* Fields:
+
+  * Salary (yearly)
+  * 401k + company match
+  * Dependents (dropdown count)
+  * Roth IRA contributions
+  * Inheritance (lump sum)
+  * State selection (dropdown with tax presets)
+  * Side hustles or additional income
+* **Live Summary Card**:
+
+  * Real-time estimated taxes and final monthly cash
+  * Animated updates and percentage breakdowns
+
+---
+
+### **3.4 Budget Analysis**
+
+* Summary Section:
+
+  * **Monthly Cash In vs. Out**
+  * Suggested healthy spending ranges (Groceries, Fun, etc.)
+  * Styled with colored gauges, sliders, or pie charts
+  * Recommendations shown as collapsible cards
+
+---
+
+### **3.5 Graphs & Forecasts**
+
+* Interactive graphs (D3.js, Chart.js, or similar):
+
+  * **Toggle options**:
+
+    * 401k Growth
+    * Roth IRA
+    * Overall Net Worth
+  * Timeframes: 1yr, 5yr, 10yr, 20yr+
+  * Responsive graph containers with animated line/bar chart transitions
+
+---
+
+### **3.6 Retirement Estimator**
+
+* Displayed as a collapsible panel or card
+* Factors in:
+
+  * Income, savings rate, market assumptions
+* Shows:
+
+  * Estimated retirement age
+  * Estimated net worth at retirement
+  * Graph: time vs. savings/net worth curve
+
+---
+
+## **4. Non-Functional Requirements**
+
+### **4.1 Usability**
+
+* Clean, modern UI with emphasis on readability and accessibility
+* Light/Dark theme toggle
+* Responsive grid/flexbox layout
+* Tooltips and inline help for financial terms
+
+### **4.2 Performance**
+
+* Instant calculation feedback
+* Smooth transitions for data updates
+* Lazy loading for heavy graph components
+
+### **4.3 Security**
+
+* Password hashing & secure login (JWT or session-based)
+* HTTPS enforced
+* Role-based access (admin vs. user)
+
+### **4.4 Maintainability**
+
+* Modular components using React/Vue or equivalent
+* Easily extendable to support more income types or tax brackets
+
+---
+
+## **5. Future Enhancements**
+
+* Bank connection using **Plaid API**
+* Export as PDF or CSV
+* Custom budget goal setting & email reminders
+* AI assistant for saving suggestions
+
+---
+
+Would you like a **wireframe/mockup** next, or a **starter code scaffold** (e.g., React with Tailwind for modern styling)?
