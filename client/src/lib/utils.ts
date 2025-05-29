@@ -47,51 +47,77 @@ export function calculateTax(income: number, state: string): { federal: number; 
 export function calculateRetirement(
   currentAge: number,
   retirementAge: number,
-  currentSavings: number,
-  initialAnnualSalary: number,
-  contribution401kPercent: number,
-  companyMatch: number,
+  currentNetWorth: number,
+  initialMonthlySavings: number,
   promotionPercentage: number,
   annualReturn: number = 0.07
-): { projectedSavings: number; monthlyIncome: number } {
+): { 
+  projectedSavings: number; 
+  monthlyIncome: number;
+  futureValueCurrent: number;
+  futureValueContributions: number;
+  calculationSteps: string[];
+} {
   const yearsToRetirement = retirementAge - currentAge;
   const monthlyReturn = annualReturn / 12;
   
-  // Future value of current savings
-  const futureValueCurrent = currentSavings * Math.pow(1 + annualReturn, yearsToRetirement);
+  // Future value of current net worth
+  const futureValueCurrent = currentNetWorth * Math.pow(1 + annualReturn, yearsToRetirement);
   
   let totalContributions = 0;
-  let currentSalary = initialAnnualSalary;
+  let currentMonthlySavings = initialMonthlySavings;
+  const calculationSteps: string[] = [];
+  
+  calculationSteps.push(`Starting net worth: ${formatCurrency(currentNetWorth)}`);
+  calculationSteps.push(`Years to retirement: ${yearsToRetirement}`);
+  calculationSteps.push(`Expected annual return: ${(annualReturn * 100).toFixed(1)}%`);
+  calculationSteps.push(`Current monthly savings: ${formatCurrency(initialMonthlySavings)}`);
+  calculationSteps.push(`Annual salary increase: ${promotionPercentage}%`);
+  calculationSteps.push('');
+  calculationSteps.push('Future value of current net worth:');
+  calculationSteps.push(`${formatCurrency(currentNetWorth)} × (1.${(annualReturn * 100).toFixed(0)})^${yearsToRetirement} = ${formatCurrency(futureValueCurrent)}`);
+  calculationSteps.push('');
+  calculationSteps.push('Future value of monthly savings with salary growth:');
   
   // Calculate contributions for each year with salary growth
   for (let year = 0; year < yearsToRetirement; year++) {
-    // Employee 401k contribution
-    const employee401k = currentSalary * (contribution401kPercent / 100);
-    
-    // Company match (typically matches up to a certain percentage)
-    const employerMatch = Math.min(employee401k, currentSalary * (companyMatch / 100));
-    
-    // Total annual contribution to retirement accounts
-    const annualContribution = employee401k + employerMatch;
+    const annualSavings = currentMonthlySavings * 12;
     
     // Calculate future value of this year's contributions
     const yearsOfGrowth = yearsToRetirement - year;
-    const futureValue = annualContribution * Math.pow(1 + annualReturn, yearsOfGrowth);
+    const futureValue = annualSavings * Math.pow(1 + annualReturn, yearsOfGrowth);
     
     totalContributions += futureValue;
     
-    // Apply salary increase for next year
-    currentSalary *= (1 + promotionPercentage / 100);
+    if (year < 5 || year === yearsToRetirement - 1) {
+      calculationSteps.push(`Year ${year + 1}: ${formatCurrency(annualSavings)} × (1.${(annualReturn * 100).toFixed(0)})^${yearsOfGrowth} = ${formatCurrency(futureValue)}`);
+    } else if (year === 5) {
+      calculationSteps.push('... (continuing for all years)');
+    }
+    
+    // Apply salary increase for next year (increases monthly savings)
+    currentMonthlySavings *= (1 + promotionPercentage / 100);
   }
   
+  calculationSteps.push('');
+  calculationSteps.push(`Total future value of contributions: ${formatCurrency(totalContributions)}`);
+  
   const projectedSavings = futureValueCurrent + totalContributions;
+  calculationSteps.push('');
+  calculationSteps.push(`Total projected savings: ${formatCurrency(futureValueCurrent)} + ${formatCurrency(totalContributions)} = ${formatCurrency(projectedSavings)}`);
   
   // 4% rule for retirement income
   const monthlyIncome = (projectedSavings * 0.04) / 12;
+  calculationSteps.push('');
+  calculationSteps.push('Monthly retirement income (4% rule):');
+  calculationSteps.push(`${formatCurrency(projectedSavings)} × 4% ÷ 12 = ${formatCurrency(monthlyIncome)}`);
   
   return {
     projectedSavings,
     monthlyIncome,
+    futureValueCurrent,
+    futureValueContributions: totalContributions,
+    calculationSteps,
   };
 }
 

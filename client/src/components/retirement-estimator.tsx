@@ -172,15 +172,12 @@ export default function RetirementEstimator() {
   const expectedReturn = parseFloat(retirementData?.plan?.expectedReturn || "7") / 100;
 
   const promotionPercentage = parseFloat(retirementData?.plan?.promotionPercentage || "3");
-  const companyMatchPercent = income ? parseFloat(income.companyMatch || "0") : 0;
   
   const retirementCalc = calculateRetirement(
     currentAge,
     targetAge,
     currentNetWorth,
-    grossAnnual,
-    contribution401kPercent,
-    companyMatchPercent,
+    monthlySavings,
     promotionPercentage,
     expectedReturn
   );
@@ -439,52 +436,14 @@ export default function RetirementEstimator() {
 
         {/* Calculation Breakdown */}
         <div className="space-y-3">
-          <h4 className="font-medium text-card-foreground">Calculation Breakdown</h4>
+          <h4 className="font-medium text-card-foreground">Mathematical Calculation</h4>
           
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Starting Salary</span>
-              <span className="font-medium text-card-foreground">
-                {formatCurrency(grossAnnual)}
-              </span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">401k Contribution</span>
-              <span className="font-medium text-card-foreground">
-                {contribution401kPercent}%
-              </span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Company Match</span>
-              <span className="font-medium text-card-foreground">
-                {companyMatchPercent}%
-              </span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Annual Raise</span>
-              <span className="font-medium text-card-foreground">
-                {promotionPercentage}%
-              </span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Expected Return</span>
-              <span className="font-medium text-card-foreground">
-                {(expectedReturn * 100).toFixed(1)}%
-              </span>
-            </div>
-            
-            <div className="pt-2 border-t border-border">
-              <div className="flex justify-between font-medium">
-                <span className="text-muted-foreground">Total at Retirement</span>
-                <span className="text-card-foreground">
-                  {formatCurrency(retirementCalc.projectedSavings)}
-                </span>
+          <div className="space-y-1 text-xs font-mono bg-muted/50 p-3 rounded-lg max-h-64 overflow-y-auto">
+            {retirementCalc.calculationSteps.map((step, index) => (
+              <div key={index} className={step === '' ? 'h-2' : 'text-muted-foreground'}>
+                {step}
               </div>
-            </div>
+            ))}
           </div>
         </div>
         
