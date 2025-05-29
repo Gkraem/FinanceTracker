@@ -151,6 +151,7 @@ export const insertRetirementPlanSchema = createInsertSchema(retirementPlans).om
   inflationRate: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 10, "Must be between 1 and 10"),
   withdrawalRate: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 2 && Number(val) <= 8, "Must be between 2 and 8"),
   targetNetWorth: z.string().optional().refine(val => !val || (!isNaN(Number(val)) && Number(val) >= 0), "Must be a valid positive number"),
+  promotionPercentage: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 10, "Must be between 0 and 10"),
 });
 
 export const insertAssetsSchema = createInsertSchema(assets).omit({

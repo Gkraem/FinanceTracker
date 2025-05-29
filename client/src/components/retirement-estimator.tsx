@@ -74,6 +74,7 @@ export default function RetirementEstimator() {
       inflationRate: "3.0",
       withdrawalRate: "4.0",
       targetNetWorth: "",
+      promotionPercentage: "3.0",
     },
   });
 
@@ -109,6 +110,7 @@ export default function RetirementEstimator() {
         inflationRate: plan.inflationRate,
         withdrawalRate: plan.withdrawalRate,
         targetNetWorth: plan.targetNetWorth || "",
+        promotionPercentage: plan.promotionPercentage || "3.0",
       });
     }
   }, [retirementData, reset]);
@@ -289,6 +291,21 @@ export default function RetirementEstimator() {
                   )}
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="promotionPercentage">Annual Pay Increase (%)</Label>
+                  <Input
+                    id="promotionPercentage"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                    {...register("promotionPercentage")}
+                  />
+                  {errors.promotionPercentage && (
+                    <p className="text-sm text-destructive">{errors.promotionPercentage.message}</p>
+                  )}
+                </div>
+                
                 <div className="flex space-x-3 pt-4">
                   <Button
                     type="submit"
@@ -385,7 +402,7 @@ export default function RetirementEstimator() {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Current Net Worth</span>
               <span className="font-medium text-card-foreground">
-                {formatCurrency(currentSavings)}
+                {formatCurrency(currentNetWorth)}
               </span>
             </div>
             
