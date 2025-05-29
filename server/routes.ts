@@ -306,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expectedReturn: validatedData.expectedReturn,
         inflationRate: validatedData.inflationRate,
         withdrawalRate: validatedData.withdrawalRate,
-        targetNetWorth: validatedData.targetNetWorth || null,
+        targetNetWorth: validatedData.targetNetWorth || undefined,
       };
 
       const plan = await storage.upsertRetirementPlan(planData);
@@ -315,6 +315,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Update retirement plan error:", error);
       res.status(400).json({ 
         message: error instanceof Error ? error.message : "Failed to update retirement plan" 
+      });
+    }
+  });
+
+  // Asset routes
+  app.get("/api/assets", requireAuth, async (req, res) => {
+    try {
+      const assets = await storage.getAssets(req.session.userId!);
+      res.json({ assets });
+    } catch (error) {
+      console.error("Get assets error:", error);
+      res.status(500).json({ message: "Failed to get assets" });
+    }
+  });
+
+  app.post("/api/assets", requireAuth, async (req, res) => {
+    try {
+      const validatedData = {
+        ...req.body,
+        userId: req.session.userId!,
+      };
+
+      const assets = await storage.upsertAssets(validatedData);
+      res.json({ assets });
+    } catch (error) {
+      console.error("Update assets error:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to update assets" 
       });
     }
   });

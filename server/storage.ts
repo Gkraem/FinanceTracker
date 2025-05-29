@@ -4,6 +4,7 @@ import {
   expenses, 
   budgetGoals, 
   retirementPlans,
+  assets,
   type User, 
   type InsertUser,
   type IncomeData,
@@ -13,7 +14,9 @@ import {
   type BudgetGoal,
   type InsertBudgetGoal,
   type RetirementPlan,
-  type InsertRetirementPlan
+  type InsertRetirementPlan,
+  type Assets,
+  type InsertAssets
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -44,6 +47,10 @@ export interface IStorage {
   // Retirement methods
   getRetirementPlan(userId: number): Promise<RetirementPlan | undefined>;
   upsertRetirementPlan(plan: InsertRetirementPlan): Promise<RetirementPlan>;
+
+  // Asset methods
+  getAssets(userId: number): Promise<Assets | undefined>;
+  upsertAssets(assets: InsertAssets): Promise<Assets>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -189,6 +196,30 @@ export class DatabaseStorage implements IStorage {
       const [created] = await db
         .insert(retirementPlans)
         .values(plan)
+        .returning();
+      return created;
+    }
+  }
+
+  async getAssets(userId: number): Promise<Assets | undefined> {
+    const [asset] = await db.select().from(assets).where(eq(assets.userId, userId));
+    return asset || undefined;
+  }
+
+  async upsertAssets(assetData: InsertAssets): Promise<Assets> {
+    const existing = await this.getAssets(assetData.userId);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(assets)
+        .set({ ...assetData, updatedAt: new Date() })
+        .where(eq(assets.userId, assetData.userId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(assets)
+        .values(assetData)
         .returning();
       return created;
     }
