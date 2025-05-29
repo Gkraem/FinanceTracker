@@ -248,7 +248,7 @@ export default function BudgetAnalysis() {
               {categoryAnalysis.map((category) => (
                 <div key={category.category}>
                   <div className="flex justify-between items-center text-sm mb-1">
-                    <Badge variant="secondary" className={getCategoryColor(category.category)}>
+                    <Badge className={`${getCategoryColor(category.category)} border-0`}>
                       {category.category}
                     </Badge>
                     <span className="text-card-foreground font-medium">
