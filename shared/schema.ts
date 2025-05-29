@@ -55,6 +55,7 @@ export const retirementPlans = pgTable("retirement_plans", {
   inflationRate: decimal("inflation_rate", { precision: 5, scale: 2 }).notNull().default("3.0"),
   withdrawalRate: decimal("withdrawal_rate", { precision: 5, scale: 2 }).notNull().default("4.0"),
   targetNetWorth: decimal("target_net_worth", { precision: 15, scale: 2 }),
+  promotionPercentage: decimal("promotion_percentage", { precision: 5, scale: 2 }).notNull().default("3.0"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

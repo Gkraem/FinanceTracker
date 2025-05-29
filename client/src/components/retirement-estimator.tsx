@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Umbrella, Settings, Loader2, TrendingUp } from "lucide-react";
-import { formatCurrency, calculateRetirement } from "@/lib/utils";
-import type { IncomeData, Expense } from "@shared/schema";
+import { formatCurrency, calculateRetirement, calculateTax } from "@/lib/utils";
+import type { IncomeData, Expense, Assets } from "@shared/schema";
 
 interface RetirementResponse {
   plan: RetirementPlan | null;
@@ -32,6 +32,10 @@ interface IncomeResponse {
 
 interface ExpensesResponse {
   expenses: Expense[];
+}
+
+interface AssetsResponse {
+  assets: Assets | null;
 }
 
 export default function RetirementEstimator() {
@@ -49,6 +53,10 @@ export default function RetirementEstimator() {
 
   const { data: expensesData } = useQuery<ExpensesResponse>({
     queryKey: ["/api/expenses"],
+  });
+
+  const { data: assetsData } = useQuery<AssetsResponse>({
+    queryKey: ["/api/assets"],
   });
 
   const {
@@ -112,9 +120,22 @@ export default function RetirementEstimator() {
   // Calculate retirement metrics
   const income = incomeData?.income;
   const expenses = expensesData?.expenses || [];
+  const assets = assetsData?.assets;
   const currentAge = 30; // Would be calculated from user's birth date in real app
 
-  const monthlyIncome = income ? parseFloat(income.annualSalary) / 12 : 0;
+  // Calculate net monthly income (same as budget analysis)
+  const salary = income ? parseFloat(income.annualSalary || "0") : 0;
+  const contribution401kPercent = income ? parseFloat(income.contribution401k || "0") : 0;
+  const sideHustle = income ? parseFloat(income.sideHustleIncome || "0") : 0;
+  const state = income?.state || "California";
+  
+  const grossAnnual = salary + sideHustle;
+  const contribution401k = (salary * contribution401kPercent) / 100;
+  const taxableIncome = grossAnnual - contribution401k;
+  const taxes = grossAnnual > 0 ? calculateTax(taxableIncome, state) : { federal: 0, state: 0, fica: 0 };
+  const netAnnual = taxableIncome - taxes.federal - taxes.state - taxes.fica;
+  const netMonthlyIncome = netAnnual / 12;
+
   const monthlyExpenses = expenses.reduce((total, expense) => {
     const amount = parseFloat(expense.amount);
     switch (expense.frequency) {
@@ -131,15 +152,25 @@ export default function RetirementEstimator() {
     }
   }, 0);
 
-  const monthlySavings = Math.max(0, monthlyIncome - monthlyExpenses);
-  const currentSavings = 185000; // Would come from assets data in real app
+  const monthlySavings = Math.max(0, netMonthlyIncome - monthlyExpenses);
+  
+  // Calculate current net worth from actual asset data
+  const currentCash = assets ? parseFloat(assets.currentCash || "0") : 0;
+  const personalInvestments = assets ? parseFloat(assets.personalInvestments || "0") : 0;
+  const homeValue = assets ? parseFloat(assets.homeValue || "0") : 0;
+  const carValue = assets ? parseFloat(assets.carValue || "0") : 0;
+  const current401k = assets ? parseFloat(assets.current401k || "0") : 0;
+  const currentRothIRA = assets ? parseFloat(assets.currentRothIRA || "0") : 0;
+  const otherAssets = assets ? parseFloat(assets.otherAssets || "0") : 0;
+  
+  const currentNetWorth = currentCash + personalInvestments + homeValue + carValue + current401k + currentRothIRA + otherAssets;
   const targetAge = retirementData?.plan?.targetRetirementAge || 65;
   const expectedReturn = parseFloat(retirementData?.plan?.expectedReturn || "7") / 100;
 
   const retirementCalc = calculateRetirement(
     currentAge,
     targetAge,
-    currentSavings,
+    currentNetWorth,
     monthlySavings,
     expectedReturn
   );
