@@ -7,10 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Shield, Users, Database, Settings, TrendingUp, Activity } from "lucide-react";
 import { Link } from "wouter";
 
+interface AdminUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+}
+
+interface AdminData {
+  users: AdminUser[];
+  stats: {
+    totalUsers: number;
+    activeUsers: number;
+    usersWithExpenses: number;
+    totalExpenses: number;
+  };
+  adminUser: string;
+}
+
 export default function Admin() {
   const { user, isAdmin } = useAuth();
 
-  const { data: adminData, isLoading, error } = useQuery({
+  const { data: adminData, isLoading, error } = useQuery<AdminData>({
     queryKey: ["/api/admin/users"],
     enabled: isAdmin,
   });
@@ -74,48 +94,56 @@ export default function Admin() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : (adminData?.stats.totalUsers || 0)}
+              </div>
               <p className="text-xs text-muted-foreground">
-                +20.1% from last month
+                Registered accounts
               </p>
             </CardContent>
           </Card>
 
           <Card className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">892</div>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : (adminData?.stats.activeUsers || 0)}
+              </div>
               <p className="text-xs text-muted-foreground">
-                +12.5% from last week
+                Users with income data
               </p>
             </CardContent>
           </Card>
 
           <Card className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Data Storage</CardTitle>
+              <CardTitle className="text-sm font-medium">Users with Expenses</CardTitle>
               <Database className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">2.4GB</div>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : (adminData?.stats.usersWithExpenses || 0)}
+              </div>
               <p className="text-xs text-muted-foreground">
-                68% of total capacity
+                Users tracking expenses
               </p>
             </CardContent>
           </Card>
 
           <Card className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Health</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">99.9%</div>
+              <div className="text-2xl font-bold">
+                {isLoading ? "..." : (adminData?.stats.totalExpenses || 0)}
+              </div>
               <p className="text-xs text-muted-foreground">
-                All systems operational
+                Tracked expense entries
               </p>
             </CardContent>
           </Card>
@@ -131,31 +159,52 @@ export default function Admin() {
                 <span>User Management</span>
               </CardTitle>
               <CardDescription>
-                Manage user accounts and permissions
+                Manage user accounts and view user information
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 border border-border rounded-lg">
-                <h4 className="font-medium mb-2">Recent User Activity</h4>
+                <h4 className="font-medium mb-2">System Statistics</h4>
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex justify-between">
-                    <span>New registrations today</span>
-                    <span className="font-medium">23</span>
+                    <span>Total registered users</span>
+                    <span className="font-medium">
+                      {isLoading ? "..." : (adminData?.stats.totalUsers || 0)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Active users (last 24h)</span>
-                    <span className="font-medium">456</span>
+                    <span>Users with income setup</span>
+                    <span className="font-medium">
+                      {isLoading ? "..." : (adminData?.stats.activeUsers || 0)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Support tickets open</span>
-                    <span className="font-medium">8</span>
+                    <span>Users tracking expenses</span>
+                    <span className="font-medium">
+                      {isLoading ? "..." : (adminData?.stats.usersWithExpenses || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
               
-              <Button className="w-full" variant="outline">
-                View User Details
-              </Button>
+              <div className="max-h-48 overflow-y-auto space-y-2">
+                <h4 className="font-medium text-sm">Recent Users</h4>
+                {isLoading ? (
+                  <div className="text-sm text-muted-foreground">Loading users...</div>
+                ) : (
+                  adminData?.users.slice(0, 5).map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-2 border border-border rounded text-sm">
+                      <div>
+                        <div className="font-medium">{user.firstName} {user.lastName}</div>
+                        <div className="text-muted-foreground text-xs">{user.email}</div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -258,7 +307,7 @@ export default function Admin() {
           <Alert className="mt-8">
             <Shield className="h-4 w-4" />
             <AlertDescription>
-              {adminData.message} - Logged in as {adminData.adminUser}
+              Admin Panel Access - Logged in as {adminData.adminUser}
             </AlertDescription>
           </Alert>
         )}
