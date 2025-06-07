@@ -78,7 +78,6 @@ export default function IncomeEstimator() {
       annualSalary: "0",
       contribution401k: "0",
       companyMatch: "0",
-      rothIRA: "0",
       dependents: 0,
       state: "",
       sideHustleIncome: "0",
@@ -235,23 +234,7 @@ export default function IncomeEstimator() {
                 )}
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="rothIRA">Roth IRA Contribution</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                  <Input
-                    id="rothIRA"
-                    type="number"
-                    step="100"
-                    placeholder="6000"
-                    className="pl-8"
-                    {...register("rothIRA")}
-                  />
-                </div>
-                {errors.rothIRA && (
-                  <p className="text-sm text-destructive">{errors.rothIRA.message}</p>
-                )}
-              </div>
+
               
               <div className="space-y-2">
                 <Label htmlFor="sideHustleIncome">Side Hustle Income</Label>

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Umbrella, Settings, Loader2, TrendingUp } from "lucide-react";
-import { formatCurrency, calculateRetirement, calculateTax } from "@/lib/utils";
+import { formatCurrency, formatCurrencyAbbreviated, calculateRetirement, calculateTax } from "@/lib/utils";
 import type { IncomeData, Expense, Assets } from "@shared/schema";
 
 interface RetirementResponse {
@@ -377,7 +377,7 @@ export default function RetirementEstimator() {
           
           <div className="text-center p-4 bg-gradient-to-br from-chart-1/5 to-chart-1/10 rounded-lg border">
             <div className="text-2xl font-bold text-chart-1">
-              {formatCurrency(retirementCalc.projectedSavings)}
+              {formatCurrencyAbbreviated(retirementCalc.projectedSavings)}
             </div>
             <div className="text-sm text-muted-foreground">Projected Savings</div>
           </div>

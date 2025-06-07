@@ -13,6 +13,20 @@ export function formatCurrency(amount: number | string): string {
   }).format(num);
 }
 
+export function formatCurrencyAbbreviated(amount: number | string): string {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  if (Math.abs(num) >= 1000000000000) {
+    return `$${(num / 1000000000000).toFixed(3)} T`;
+  } else if (Math.abs(num) >= 1000000000) {
+    return `$${(num / 1000000000).toFixed(3)} B`;
+  } else if (Math.abs(num) >= 1000000) {
+    return `$${(num / 1000000).toFixed(3)} M`;
+  } else {
+    return formatCurrency(num);
+  }
+}
+
 export function formatPercentage(amount: number | string): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
   return new Intl.NumberFormat('en-US', {

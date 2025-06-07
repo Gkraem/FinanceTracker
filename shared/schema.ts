@@ -19,7 +19,7 @@ export const incomeData = pgTable("income_data", {
   annualSalary: decimal("annual_salary", { precision: 12, scale: 2 }).notNull(),
   contribution401k: decimal("contribution_401k", { precision: 5, scale: 2 }).notNull(),
   companyMatch: decimal("company_match", { precision: 5, scale: 2 }).notNull(),
-  rothIRA: decimal("roth_ira", { precision: 12, scale: 2 }).notNull(),
+
   dependents: integer("dependents").notNull().default(0),
   state: text("state").notNull(),
   sideHustleIncome: decimal("side_hustle_income", { precision: 12, scale: 2 }).default("0"),
