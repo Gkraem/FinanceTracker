@@ -47,11 +47,19 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="bg-primary rounded-lg p-2">
-              <Shield className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-3">
+              <div className="bg-primary rounded-lg p-2">
+                <Shield className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
             </div>
-            <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+            <Link href="/">
+              <Button variant="outline" className="flex items-center space-x-2">
+                <TrendingUp className="h-4 w-4" />
+                <span>Back to Finance Tracker</span>
+              </Button>
+            </Link>
           </div>
           <p className="text-muted-foreground">
             System administration and user management

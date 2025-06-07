@@ -92,6 +92,6 @@ export function useAuth() {
     loginError: loginMutation.error,
     registerError: registerMutation.error,
     isAuthenticated: !!user,
-    isAdmin: user?.phone === "2402857119",
+    isAdmin: user?.email === "gkraem@vt.edu",
   };
 }
