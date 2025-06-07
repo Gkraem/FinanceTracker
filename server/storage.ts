@@ -19,7 +19,7 @@ import {
   type InsertAssets
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -27,6 +27,10 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  getUsersWithIncome(): Promise<User[]>;
+  getUsersWithExpenses(): Promise<User[]>;
+  getTotalExpenseCount(): Promise<number>;
 
   // Income methods
   getIncomeData(userId: number): Promise<IncomeData | undefined>;
@@ -79,6 +83,57 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select({
+      id: users.id,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      phone: users.phone,
+      password: users.password,
+      createdAt: users.createdAt
+    }).from(users);
+  }
+
+  async getUsersWithIncome(): Promise<User[]> {
+    const result = await db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        password: users.password,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .innerJoin(incomeData, eq(users.id, incomeData.userId));
+    return result;
+  }
+
+  async getUsersWithExpenses(): Promise<User[]> {
+    const result = await db
+      .selectDistinct({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        password: users.password,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .innerJoin(expenses, eq(users.id, expenses.userId));
+    return result;
+  }
+
+  async getTotalExpenseCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(expenses);
+    return result[0]?.count || 0;
   }
 
   async getIncomeData(userId: number): Promise<IncomeData | undefined> {

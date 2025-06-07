@@ -350,16 +350,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.get("/api/admin/users", requireAuth, async (req, res) => {
     try {
-      // Check if user is admin (phone number 2402857119)
+      // Check if user is admin (email gkraem@vt.edu)
       const currentUser = await storage.getUser(req.session.userId!);
-      if (!currentUser || currentUser.phone !== "2402857119") {
+      if (!currentUser || currentUser.email !== "gkraem@vt.edu") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      // For now, just return basic stats (you can expand this)
+      // Get all users from database (excluding passwords)
+      const allUsers = await storage.getAllUsers();
+      const safeUsers = allUsers.map(user => ({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        createdAt: user.createdAt
+      }));
+      
+      // Get system stats
+      const totalUsers = allUsers.length;
+      const usersWithIncome = await storage.getUsersWithIncome();
+      const usersWithExpenses = await storage.getUsersWithExpenses();
+      const totalExpenses = await storage.getTotalExpenseCount();
+      
       res.json({ 
-        message: "Admin panel - functionality to be implemented",
-        adminUser: currentUser.firstName + " " + currentUser.lastName
+        users: safeUsers,
+        stats: {
+          totalUsers,
+          activeUsers: usersWithIncome.length,
+          usersWithExpenses: usersWithExpenses.length,
+          totalExpenses
+        },
+        adminUser: `${currentUser.firstName} ${currentUser.lastName}`
       });
     } catch (error) {
       console.error("Admin panel error:", error);
